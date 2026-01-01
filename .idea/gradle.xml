@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/aws-notify-ses" />
             <option value="$PROJECT_DIR$/aws-s3-basic" />
+            <option value="$PROJECT_DIR$/aws-s3-example1" />
             <option value="$PROJECT_DIR$/dynamoDB" />
           </set>
         </option>

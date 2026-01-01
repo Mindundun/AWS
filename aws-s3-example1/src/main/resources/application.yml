@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: s3-basic-example1
+
+  servlet:
+    multipart:
+      # 파일 한 개당 최대 크기 제한 (기본값: 1MB)
+      max-file-size: 10MB
+      # HTTP 요청 전체(여러 파일 포함)의 최대 크기 제한 (기본값: 10MB)
+      max-request-size: 10MB
