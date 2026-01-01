@@ -1,0 +1,4 @@
+rootProject.name = 'AWS'
+include 'aws-notify-ses'
+include 'dynamoDB'
+include 'aws-s3-basic'
