@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: aws-s3-example2
+  thymeleaf:
+    cache: false  # 개발 중에는 캐싱하지 않기
+    mode: HTML  # 엄격한 검사 완화하기

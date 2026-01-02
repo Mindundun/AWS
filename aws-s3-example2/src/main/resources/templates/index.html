@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>S3 File Download</title>
+</head>
+<body>
+<h1>AWS S3 파일 다운로드</h1>
+<table>
+    <thead>
+    <tr>
+        <th>파일명 (Key)</th>
+        <th>크기 (Byte)</th>
+        <th>업로드 일자</th>
+        <th>다운로드</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="file : ${files}">
+        <td th:text="${file.key}">파일명</td>
+        <td th:text="${file.size}">0</td>
+        <td th:text="${file.lastModified}">2024-01-01</td>
+        <td>
+            <a th:href="@{/download(key=${file.key})}">
+                <button>Download</button>
+            </a>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(files)}">
+        <td colspan="4" style="text-align: center">저장된 파일이 없습니다.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
