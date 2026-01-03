@@ -19,4 +19,9 @@ public class PresignedUrlController {
     public String getUrl(@RequestParam String filename) {
         return s3Service.getPreSignedUrl(filename);
     }
+
+    @GetMapping("/download-url")
+    public String getPreviewUrl(@RequestParam String key) {
+        return s3Service.getPresignedDownloadUrl(key);
+    }
 }
