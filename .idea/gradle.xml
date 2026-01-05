@@ -9,6 +9,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/aws-dynamoDB-practice2" />
+            <option value="$PROJECT_DIR$/aws-nofity-EUM" />
+            <option value="$PROJECT_DIR$/aws-notify-practice1" />
             <option value="$PROJECT_DIR$/aws-notify-ses" />
             <option value="$PROJECT_DIR$/aws-s3-basic" />
             <option value="$PROJECT_DIR$/aws-s3-example1" />
