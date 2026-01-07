@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/aws-apiGateway-basic" />
+            <option value="$PROJECT_DIR$/aws-apiGateway-practice" />
             <option value="$PROJECT_DIR$/aws-dynamoDB-practice2" />
             <option value="$PROJECT_DIR$/aws-lambda-basic" />
             <option value="$PROJECT_DIR$/aws-lambda-practice1" />
