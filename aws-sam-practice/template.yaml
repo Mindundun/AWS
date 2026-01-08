@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for sam-practice
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+    Runtime: java17
+    Architectures:
+      - x86_64
+
+Resources:
+
+  UserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UserFunction  # 소스 폴더 변경
+      Handler: com.example.user.UserHandler::handleRequest  # 핸들러 변경
+      Events:
+        GetUser:  # 이벤트 이름 변경
+          Type: Api
+          Properties:
+            Path: /users/{id}  # 경로 변수 포함
+            Method: get
+
+Outputs:
+
+  UserApi:  # 출력 변수명 변경
+    # 설명은 적당히 변경
+    Description: "API Gateway endpoint URL"
+    # 중요: 경로를 /hello/ -> /users/ 로 변경. 경로 변수는 일반적으로 작성 안 함.
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/users/"
