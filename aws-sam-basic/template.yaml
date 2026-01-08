@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-sam-basic
+
+  Sample SAM Template for aws-sam-basic
+
+# 전역 설정
+Globals:
+  # 람다의 전역 설정
+  Function:
+    Timeout: 20
+    MemorySize: 512
+    # 모든 리소스의 java 버전을 17로 한다면 전역변수에 선언,
+    # 만약 리소스들의 java버전을 다 다르게 한다면 아래의 Resources에 작성
+    Runtime: java17
+    # - x86_64 중 "-" 뜻은 배열이라는 뜻. Architectures: [ x86_64 ] 로 작성해도 된다.
+    Architectures:
+      - x86_64
+
+# 각 Lambda, API Gateway, S3, DynamoDB 등 리소스 정의
+Resources:
+  # HelloWorldFunction : 리소스 이름, AWS CloudFormation에서 구분하는 논리적 ID. 소스파일의 이름과 다를 수 있음.
+  HelloWorldFunction:
+    # AWS::Serverless::Function 는 해당 리소스가 Lambda라는 것을 의미.
+    Type: AWS::Serverless::Function
+    Properties:
+      # 소스 폴더 이름
+      CodeUri: HelloWorldFunction
+      # 람다 핸들러 이름 ( 패키지.클래스::메서드 )
+      Handler: helloworld.App::handleRequest
+      # 환경 변수
+      Environment:
+        Variables:
+          PARAM1: VALUE # System.getEnv("PARAM1") 과 같이 자바에서 꺼내서 사용할 수 있음.
+          COUNTRY: korea
+      # 이벤트 ( 트리거 : 람다가 언제 동작하는지? ) -> API GateWay : http 요청으로 이벤트를 실행함.
+      Events:
+        # 이벤트 이름 ( 논리적 ID로 사용 ) -> 이름을 마음대로 작성해도 된다.
+        # API Gateway를 임의로 제공하는 방식 ( 임의로 제공된 API Gateway는 ServerlessRestAPI라고 부름 )
+        # 이와 같이 임의로 제공한다면 기본 스테이지가 Prod로 제공된다.
+        # API Gateway에서 스테이지는 주소에 적혀있다.
+        HelloWorld:
+          # Api -> REST API, HttpAPI -> HTTP API
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+# 출력
+Outputs:
+  # 출력 변수 이름 ( API Gateway 정보(URL) )
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"

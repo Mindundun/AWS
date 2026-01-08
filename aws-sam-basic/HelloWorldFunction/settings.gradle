@@ -1,0 +1,3 @@
+rootProject.name = 'aws-sam-basic'
+
+include 'HelloWorldFunction'

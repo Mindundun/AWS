@@ -23,6 +23,7 @@
             <option value="$PROJECT_DIR$/aws-s3-example1" />
             <option value="$PROJECT_DIR$/aws-s3-example2" />
             <option value="$PROJECT_DIR$/aws-s3Presigner-upload-basic" />
+            <option value="$PROJECT_DIR$/aws-sam-basic" />
             <option value="$PROJECT_DIR$/aws-sqs-secrets-basic" />
             <option value="$PROJECT_DIR$/dynamoDB" />
           </set>
