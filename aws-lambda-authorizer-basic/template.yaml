@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-authorizer-basic
+  Sample SAM Template for sam-authorizer-basic
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+
+Resources:
+
+  # [신규 추가 리소스] Lambda Authorizer
+  MyAuthorizerFunction:
+    Type: AWS::Serverless::Function  # Lambda
+    Properties:
+      CodeUri: LoungeFunction
+      Handler: com.example.lounge.LoungeAuthorizerHandler::handleRequest
+      Runtime: java17
+
+  # [기존 리소스] Lambda. API Gateway 설정 추가.
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: LoungeFunction
+      Handler: com.example.lounge.LoungeHandler::handleRequest
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        GetLounge:
+          Type: Api
+          Properties:
+            Path: /lounge
+            Method: get
+            # [신규 추가] 보안 설정 추가
+            RestApiId: !Ref MyApiGateway  # 아래에서 정의한 API ID 참조
+
+  # [신규 추가 리소스] API Gateway
+  MyApiGateway:
+    Type: AWS::Serverless::Api  # API Gateway
+    Properties:
+      StageName: dev  # Prod(디폴트. 배포), Dev(개발), Stage(배포 직전), V1/V2 등
+      Auth:
+        DefaultAuthorizer: MyLambdaTokenAuthorizer  # 기본 Authorizer로 등록
+        Authorizers:
+          MyLambdaTokenAuthorizer:  # Authorizer 이름
+            FunctionArn: !GetAtt MyAuthorizerFunction.Arn  # Authorizer 리소스 주소 가져오기
+            Identity:  # 토큰이 포함된 헤더 Authorization 명시
+              Header: Authorization
+              ValidationExpression: ^[a-zA-Z0-9-_]+$  # (선택) 정규식 검사
+              ReauthorizeEvery: 0  # (선택) 캐시 끄기 (테스트 시 편리함)
+
+Outputs:
+
+  # 중요. 새로 만든 리소스 MyApiGateway를 참조할 수 있도록 수정
+  #   ${ServerlessRestApi} -> ${MyApiGateway}
+  #   /Prod/hello/ -> /Prod/lounge/
+  LoungeApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${MyApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/dev/lounge/"
+
+  LoungeFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt MyLambdaFunction.Arn  # 리소스 이름 참조
+
+  LoungeFunctionIamRole:
+    Description: "Implicit IAM Role created for Lounge function"
+    Value: !GetAtt MyLambdaFunctionRole.Arn  # 리소스 이름 참조

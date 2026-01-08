@@ -1,0 +1,3 @@
+rootProject.name = 'aws-lambda-authorizer-basic'
+
+include 'LoungeFunction'
