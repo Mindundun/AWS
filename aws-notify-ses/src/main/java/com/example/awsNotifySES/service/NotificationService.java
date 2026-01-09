@@ -1,6 +1,6 @@
-package com.example.awsNotidySES.service;
+package com.example.awsNotifySES.service;
 
-import com.example.awsNotidySES.dto.EmailRequest;
+import com.example.awsNotifySES.dto.EmailRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;

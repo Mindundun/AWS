@@ -1,4 +1,4 @@
-package com.example.awsNotidySES;
+package com.example.awsNotifySES;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.example.awsNotidySES.dto;
+package com.example.awsNotifySES.dto;
 
 public record EmailRequest(
         String to,      // 받는 사람

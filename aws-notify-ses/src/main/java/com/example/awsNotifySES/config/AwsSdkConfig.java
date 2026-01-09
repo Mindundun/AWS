@@ -1,4 +1,4 @@
-package com.example.awsNotidySES.config;
+package com.example.awsNotifySES.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

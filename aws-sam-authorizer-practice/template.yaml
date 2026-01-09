@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-authorizer-practice
+  Sample SAM Template for sam-authorizer-practice
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+
+Resources:
+
+  # 1. Authorizer
+  OrderSecurityFunction:
+    Type: AWS::Serverless::Function  # Lambda
+    Properties:
+      CodeUri: OrderFunction
+      Handler: com.example.order.SecurityHandler::handleRequest
+      Runtime: java17
+
+  # 2. 주문 함수
+  OrderFunction:
+    Type: AWS::Serverless::Function  # Lambda
+    Properties:
+      CodeUri: OrderFunction
+      Handler: com.example.order.OrderHandler::handleRequest
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        GetOrder:
+          Type: Api
+          Properties:
+            Path: /orders/{orderId}
+            Method: get
+            RestApiId: !Ref OrderApi  # API 명시적 연결
+
+  # 3. API Gateway
+  OrderApi:
+    Type: AWS::Serverless::Api  # API Gateway
+    Properties:
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: MyOrderTokenAuthorizer
+        Authorizers:
+          MyOrderTokenAuthorizer:
+            FunctionArn: !GetAtt OrderSecurityFunction.Arn
+            Identity:
+              Header: Authorization
+
+Outputs:
+  MyApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${OrderApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Dev/orders/"
+
+  OrderFunction:
+    Description: "Order Lambda Function ARN"
+    Value: !GetAtt OrderFunction.Arn
+
+  OrderFunctionIamRole:
+    Description: "Implicit IAM Role created for Order function"
+    Value: !GetAtt OrderFunctionRole.Arn

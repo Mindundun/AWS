@@ -4,7 +4,7 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "aws-lambda-authorizer-basic"
-region = "ap-southeast-2"
+region = "ap-northeast-2"
 
 [default.build.parameters]
 cached = true
@@ -17,9 +17,9 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-stack_name = "aws-lambda-authorizer-basic-pmk"
-s3_prefix = "aws-lambda-authorizer-basic-pmk"
-region = "ap-southeast-2"
+stack_name = "aws-sam-authorizer-basic-pmk"
+s3_prefix = "aws-sam-authorizer-basic-pmk"
+region = "ap-northeast-2"
 image_repositories = []
 
 [default.package.parameters]

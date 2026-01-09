@@ -1,7 +1,7 @@
-package com.example.awsNotidySES.controller;
+package com.example.awsNotifySES.controller;
 
-import com.example.awsNotidySES.dto.EmailRequest;
-import com.example.awsNotidySES.service.NotificationService;
+import com.example.awsNotifySES.dto.EmailRequest;
+import com.example.awsNotifySES.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
