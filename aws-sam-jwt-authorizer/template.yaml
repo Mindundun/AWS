@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-authorizer-jwt
+  Sample SAM Template for sam-authorizer-jwt
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+
+Resources:
+
+  # 1. Authorizer Lambda
+  MyAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: JwtFunction
+      Handler: com.example.jwt.JwtAuthorizerHandler::handleRequest
+      Runtime: java17
+
+  # 2. Business Login Lambda
+  MyJwtFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: JwtFunction
+      Handler: com.example.jwt.JwtLambdaHandler::handleRequest
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        SamAuthorizerJwt:
+          Type: Api
+          Properties:
+            Path: /jwt
+            Method: get
+            RestApiId: !Ref MyApiGateway
+
+  # 3. API Gateway
+  MyApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: MyLambdaTokenAuthorizer
+        Authorizers:
+          MyLambdaTokenAuthorizer:
+            FunctionArn: !GetAtt MyAuthorizerFunction.Arn
+            Identity:
+              Header: Authorization
+              ReauthorizeEvery: 0
+
+Outputs:
+
+  JwtApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${MyApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Dev/jwt/"
+
+  JwtFunction:
+    Description: "Jwt Lambda Function ARN"
+    Value: !GetAtt MyJwtFunction.Arn
+
+  JwtFunctionIamRole:
+    Description: "Implicit IAM Role created"
+    Value: !GetAtt MyJwtFunctionRole.Arn
