@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Lambda Java Core
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
+
+    // Lambda Java Events
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+
+    // AWS SDK BOM
+    implementation platform('software.amazon.awssdk:bom:2.29.51')
+
+    // DynamoDB Enhanced Client
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
+
+    // HTTP Clients
+    implementation 'software.amazon.awssdk:url-connection-client'
+
+    // Jackson Databind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+}
+
+//sourceCompatibility = 17
+//targetCompatibility = 17
