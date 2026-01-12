@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for s3-basic
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+    Runtime: java17
+    Architectures:
+      - x86_64
+    # 생성되는 S3 버킷 이름을 환경 변수로 등록
+    Environment:
+      Variables:
+        BUCKET_NAME: !Ref ProfileBucket
+
+Resources:
+  # S3 버킷
+  ProfileBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # 버킷 이름 직접 지정
+      BucketName: !Sub "simple-profile-bucket-pmk-${AWS::AccountId}"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, PUT, POST, HEAD]  # 브라우저나 파일 업로드 라이브러리들이 PUT이나 GET을 하기 전에, 내부적으로 HEAD 요청을 보내 상태를 체크. OPTIONS는 S3가 알아서 하므로 불필요.
+            AllowedOrigins: ['*']
+
+  # 람다
+  ProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ProfileFunction
+      Handler: com.example.profile.handler.ProfileHandler::handleRequest
+      Policies:
+        - S3CrudPolicy:  # S3 작업 권한 필요
+            BucketName: !Ref ProfileBucket
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /profile/presigned-url
+            Method: post
+
+Outputs:
+
+  ApiEndPoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/profile/presigned-url"

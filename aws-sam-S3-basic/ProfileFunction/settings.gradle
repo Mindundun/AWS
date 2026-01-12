@@ -1,0 +1,3 @@
+rootProject.name = 'aws-sam-S3-basic'
+
+include 'ProfileFunction'
