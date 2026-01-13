@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for event-s3-basic
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+    Runtime: java17
+    Architectures:
+      - x86_64
+
+Resources:
+
+  # 감시할 S3 버킷
+  MyBucket:
+    Type: AWS::S3::Bucket
+
+  # 텍스트 파일 생성 시 동작할 Lambda 함수
+  CreateTextFileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.example.event.CreateTextFileHandler::handleRequest
+      # S3 읽기 권한
+      Policies:
+        - S3CrudPolicy:
+            # BucketName: !Ref MyBucket <--- 설정 시 순환 참조 발생
+            # 이유: CreateTextFileFunction 람다를 만들려면 MyBucket 필요 -> MyBucket 버킷 만들려면 이벤트 트리거 설정 때문에 람다 필요
+            # 해결: 순환 참조를 끊기 위해, "*"로 지정
+            BucketName: "*"
+      # 이벤트
+      Events:
+        CreateTextFile:
+          Type: S3  # S3 타입
+          Properties:
+            Bucket: !Ref MyBucket
+            Events: s3:ObjectCreated:*  # 파일 생성(모든 메서드) 시 발동
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: logs/  # logs 폴더만 감시
+                  - Name: suffix
+                    Value: .txt  # .txt 파일만 감시
+
+  # 텍스트 파일 삭제 시 동작할 Lambda 함수
+  DeleteTextFileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.example.event.DeleteTextFileHandler::handleRequest
+      # 삭제 감지만 하므로 S3 접근 권한 불필요
+      # Policies:
+      #   - S3ReadPolicy:
+      #       BucketName: !Ref MyBucket
+      Events:
+        DeleteTextFile:
+          Type: S3
+          Properties:
+            Bucket: !Ref MyBucket
+            # [핵심] 생성(Created)이 아니라 삭제(Removed) 이벤트 감지
+            Events: s3:ObjectRemoved:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: logs/  # logs 폴더만 감시
+                  - Name: suffix
+                    Value: .txt  # .txt 파일만 감시
