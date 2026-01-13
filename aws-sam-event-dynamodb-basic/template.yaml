@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for event-dynamodb-basic
+
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+    Runtime: java17
+    Architectures:
+      - x86_64
+
+Resources:
+
+  # 상품 테이블 - 감시 대상
+  # AWS::Serverless::SimpleTable이 아니라, 정식 AWS::DynamoDB::Table을 사용합니다.
+  # 이유: StreamSpecification 등 세부 설정을 직접 제어하기 위함입니다.
+  ProductTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      # 테이블 이름
+      TableName: serverless-product-Table-pmk  # 수정 필요
+      # [과금 모델] 요청한 만큼만 돈을 내는 온디맨드 방식
+      BillingMode: PAY_PER_REQUEST
+      # [키 스키마 정의] PK, SK 설정
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S  # S=문자열, N=숫자
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH  # HASH = Partition Key (기본키)
+        - AttributeName: timestamp
+          KeyType: RANGE  # RANGE = Sort Key (정렬키)
+      # DynamoDB Streams 활성화
+      # 이 설정이 있어야 데이터가 변경될 때마다 "변경 내역"이 스트림으로 흘러나옴
+      # 종류
+      # 1. NEW_AND_OLD_IMAGES: 변경 전/후 데이터 모두 보냄
+      # 2. NEW_IMAGE         : 변경 후 데이터만 보냄
+      # 3. OLD_IMAGE         : 변경 전 데이터만 보냄
+      # 4. KEYS_ONLY         : 데이터 빼고, PK/SK만 보냄 (뭔가 변했다는 신호만 필요할 때)
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  # 람다 (Consumer) - 감시자
+  # DynamoDB에서 흘러나온 스트림 데이터를 낚아채서 처리하는 함수
+  AuditLogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.example.event.AuditLogHandler::handleRequest
+      Policies:
+        - DynamoDBCrudPolicy: # DB CRUD 권한
+            TableName: !Ref ProductTable
+      Events:
+        # [트리거] 람다와 DynamoDB 스트림 연결
+        StreamTrigger:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt ProductTable.StreamArn  # 테이블의 스트림 주소(ARN)를 연결
+            StartingPosition: LATEST # 가장 최신 변경사항부터 읽기
+            BatchSize: 1  # [최적화] 한 번에 1개씩 처리 (순서가 중요하거나 로직이 무거울 때)
+            # 대량 처리 시에는 10~100 정도로 늘리는 것이 좋음
